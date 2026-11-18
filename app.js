@@ -132,7 +132,7 @@
   var VIEWS = [
     { k: 'home', t: '首页' }, { k: 'process', t: '面试流程' }, { k: 'spots', t: '景点讲解' },
     { k: 'topics', t: '专题陈述' },
-    { k: 'terms', t: '术语表达' }, { k: 'interp', t: '口译训练' }, { k: 'faq', t: '综合问答' },
+    { k: 'terms', t: '术语表达' }, { k: 'interp', t: '口译训练' },     { k: 'faq', t: '综合问答' }, { k: 'sz', t: '时政要点' },
     { k: 'sos', t: '应变题' }, { k: 'sim', t: '模拟面试' }
   ];
   var current = 'home';
@@ -157,6 +157,7 @@
     if (k === 'terms') renderTerms();
     if (k === 'interp') renderInterp();
     if (k === 'faq') renderFaq();
+    if (k === 'sz') renderSz();
     if (k === 'sos') renderSos();
     if (k === 'sim') renderSim();
     window.scrollTo(0, 0);
@@ -645,6 +646,52 @@
 
   /* ---------- 综合问答 ---------- */
   var fCat = '全部', fOpen = {}, fRandom = null;
+  var szCat = '全部', szOpen = {};
+
+  /* ---------- 时政要点（笔试·政策与法律法规）---------- */
+  function renderSz() {
+    var SZ = window.SZ || { cats: [], items: [] };
+    var h = '<div class="card" style="border-left:4px solid #185fa5;background:#f3f8fd"><h2>📌 考纲定位</h2><div class="sub" style="line-height:1.9">'
+      + '《2026年全国导游资格考试笔试大纲》：《政策与法律法规》科目第 2 部分<b>「时事政治」</b>，考查范围为<b>「2025年10月以来的国内外时政大事」</b>，'
+      + '另含<b>「旅游业相关政策」</b>5 份文件（大纲点名）。<br>'
+      + '题型为判断题 / 单项选择题 / 多项选择题，时政约占该科目 <b>5–8 分</b>。命题核心 = <b>时间、数字、会议名称、文件名称、工程名称、地点</b>。'
+      + '本页按 2025.10 — 2026.11 梳理至考前，全部为中文，点击题目展开答案要点。</div></div>';
+    h += '<div class="card"><div class="row" id="szcats">';
+    ['全部'].concat(SZ.cats).forEach(function (c) {
+      h += '<span class="chip' + (szCat === c ? ' on' : '') + '" data-c="' + c + '">' + c + '</span>';
+    });
+    h += '</div><div class="row" style="margin-top:8px"><button class="btn ghost" id="szRand">随机抽 1 题</button>'
+      + '<button class="btn gray" id="szExpand">展开全部</button><button class="btn gray" id="szFold">收起全部</button></div></div>';
+    if (szRandom) h += '<div class="card" style="border-left:4px solid #d97706"><h2>随机题目</h2><div class="item"><div class="q"><span class="tag">' + szRandom.c + '</span>' + szRandom.q + '</div><div class="ans" style="display:block">' + szRandom.a + '</div></div></div>';
+    h += '<div class="card"><h2>时政题库 <span class="sub">（共 ' + SZ.items.length + ' 条 · 点击展开）</span></h2><div id="szlist"></div></div>';
+    $('v-sz').innerHTML = h;
+
+    Array.prototype.forEach.call($('szcats').children, function (el) {
+      el.onclick = function () { szCat = el.dataset.c; renderSz(); };
+    });
+    $('szRand').onclick = function () {
+      szRandom = SZ.items[Math.floor(Math.random() * SZ.items.length)];
+      renderSz(); window.scrollTo(0, 0);
+    };
+    $('szExpand').onclick = function () { SZ.items.forEach(function (_, i) { szOpen[i] = true; }); renderSz(); };
+    $('szFold').onclick = function () { szOpen = {}; renderSz(); };
+
+    var list = $('szlist'), html = '';
+    SZ.items.forEach(function (it, i) {
+      if (szCat !== '全部' && it.c !== szCat) return;
+      html += '<div class="item"><div class="row" style="justify-content:space-between" data-i="' + i + '">'
+        + '<div class="q"><span class="tag">' + it.c + '</span>' + it.q + '</div></div>';
+      if (szOpen[i]) html += '<div class="ans" style="display:block;line-height:1.85">' + it.a + '</div>';
+      else html += '<div class="sub" style="margin-top:6px" data-i="' + i + '">点击展开答案要点</div>';
+      html += '</div>';
+    });
+    list.innerHTML = html;
+    Array.prototype.forEach.call(list.querySelectorAll('[data-i]'), function (el) {
+      el.onclick = function () { var i = +el.dataset.i; szOpen[i] = !szOpen[i]; renderSz(); };
+    });
+  }
+  var szRandom = null;
+
   function renderFaq() {
     var cats = ['全部'];
     (window.FAQ || []).forEach(function (x) { if (cats.indexOf(x.cat) < 0) cats.push(x.cat); });
