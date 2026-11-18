@@ -22,7 +22,7 @@ window.SPOTS = [
     "de": "Höhepunkte",
     "zh": "重点讲解",
     "paragraphs": [
-     "Sehen wir uns den Platz genauer an: Im Norden steht das Tiananmen, davor fließt der „goldene Wasser\" mit fünf Marmorsäulenbrücken und zwei Huabiao-Säulen – das sind die kunstvollen Marmorsäulen mit Drachen, ein Symbol der kaiserlichen Würde.",
+     "Sehen wir uns den Platz genauer an: Im Norden steht das Tian'anmen, davor fließt der Jinshui-Fluss mit fünf Marmorbrücken und zwei Huabiao – das sind kunstvolle Marmorsäulen mit Drachen, ein Symbol der kaiserlichen Würde.",
      "Im Westen liegt die Große Halle des Volkes. Dort tagt der Nationale Volkskongress, das höchste legislative Organ Chinas. Sie wurde 1959 in nur zehn Monaten erbaut.",
      "Im Osten befindet sich das Nationalmuseum Chinas, eines der größten Museen der Welt mit über einer Million Exponaten – von der Bronzezeit bis zur Gegenwart.",
      "Im Süden steht die Gedenkhalle für Vorsitzenden Mao, in der der Leichnam Mao Zedongs aufgebahrt ist."
@@ -108,7 +108,7 @@ window.SPOTS = [
    "Über dem mittleren Torbogen sehen Sie das weltberühmte Porträt von Mao Zedong.",
    "Von dieser Tür aus rief Mao Zedong am 1.",
    "Oktober 1949 die Volksrepublik China aus – deshalb ist dieser Ort für alle Chinesen von großer historischer Bedeutung.",
-   "Sehen wir uns den Platz genauer an: Im Norden steht das Tiananmen, davor fließt der „goldene Wasser\" mit fünf Marmorsäulenbrücken und zwei Huabiao-Säulen – das sind die kunstvollen Marmorsäulen mit Drachen, ein Symbol der kaiserlichen Würde.",
+   "Sehen wir uns den Platz genauer an: Im Norden steht das Tian'anmen, davor fließt der Jinshui-Fluss mit fünf Marmorbrücken und zwei Huabiao – das sind kunstvolle Marmorsäulen mit Drachen, ein Symbol der kaiserlichen Würde.",
    "Im Westen liegt die Große Halle des Volkes.",
    "Dort tagt der Nationale Volkskongress, das höchste legislative Organ Chinas.",
    "Sie wurde 1959 in nur zehn Monaten erbaut.",
