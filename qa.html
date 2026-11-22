@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="背题清单">
+<meta name="theme-color" content="#185fa5">
+<title>综合问答·中文全量清单（背题标记）</title>
+<style>
+  :root{
+    --blue:#185fa5; --blue-l:#e8f1fa;
+    --ok:#2e9e5b; --ok-bg:#e6f5ec;
+    --mid:#d99a06; --mid-bg:#fdf4dc;
+    --no:#d9482e; --no-bg:#fbe9e5;
+    --line:#dfe5ec; --txt:#22303e; --sub:#6b7a8c;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Segoe UI",sans-serif;background:#f2f5f9;color:var(--txt);font-size:15px}
+  .wrap{max-width:680px;margin:0 auto;padding:0 12px 80px}
+  header.top{background:linear-gradient(135deg,#185fa5,#2b87cf);color:#fff;margin:0 -12px;padding:18px 16px 14px}
+  header.top h1{font-size:19px;margin:0 0 4px}
+  header.top p{margin:0;font-size:12.5px;opacity:.9}
+  .backlink{display:inline-block;margin-top:8px;color:#fff;font-size:12.5px;text-decoration:none;opacity:.85;border:1px solid rgba(255,255,255,.45);border-radius:20px;padding:3px 12px}
+  /* 进度 */
+  .progress-card{background:#fff;border-radius:12px;margin:12px 0;padding:12px 14px;box-shadow:0 1px 4px rgba(30,60,100,.08)}
+  .pbar{height:8px;background:#eef1f5;border-radius:4px;overflow:hidden;display:flex}
+  .pbar i{display:block;height:100%}
+  .p-ok{background:var(--ok)} .p-mid{background:var(--mid)} .p-no{background:var(--no)}
+  .pstats{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .pstats span{font-size:12px;padding:3px 9px;border-radius:12px;font-weight:600}
+  .s-ok{background:var(--ok-bg);color:var(--ok)}
+  .s-mid{background:var(--mid-bg);color:var(--mid)}
+  .s-no{background:var(--no-bg);color:var(--no)}
+  .s-none{background:#eef1f5;color:var(--sub)}
+  .s-total{background:var(--blue-l);color:var(--blue)}
+  /* 筛选 */
+  .filters{position:sticky;top:0;z-index:20;background:rgba(242,245,249,.96);backdrop-filter:blur(6px);padding:8px 0 6px;margin:0 -12px;padding-left:12px;padding-right:12px;border-bottom:1px solid var(--line)}
+  .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:16px;padding:5px 13px;font-size:13px;color:var(--txt);cursor:pointer;white-space:nowrap}
+  .chip.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+  .chip.cat.on{background:#0e3c6e;border-color:#0e3c6e}
+  .chip .n{opacity:.7;font-size:11.5px;margin-left:2px}
+  .searchrow{display:flex;gap:8px;margin-top:8px;align-items:center}
+  .searchrow input{flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;background:#fff;outline:none}
+  .searchrow input:focus{border-color:var(--blue)}
+  .hideok-btn{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;font-size:13px;color:var(--txt);cursor:pointer}
+  .hideok-btn.on{background:var(--blue-l);border-color:var(--blue);color:var(--blue);font-weight:600}
+  /* 题卡 */
+  .cathead{position:sticky;top:88px;z-index:15;background:#e4ecf5;margin:14px -12px 0;padding:7px 14px;font-size:13.5px;font-weight:700;color:#123a63;display:flex;justify-content:space-between}
+  .cathead.warn{background:#fdf0e0;color:#8a4d00}
+  .cathead .cp{font-weight:600;font-size:12px}
+  .card{background:#fff;border-radius:12px;margin:10px 0;padding:12px 14px 10px;border-left:4px solid var(--line);box-shadow:0 1px 3px rgba(30,60,100,.06)}
+  .card.ok{border-left-color:var(--ok)}
+  .card.mid{border-left-color:var(--mid)}
+  .card.no{border-left-color:var(--no)}
+  .qrow{display:flex;gap:6px;align-items:flex-start;cursor:pointer}
+  .qnum{flex:0 0 auto;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-l);border-radius:8px;padding:2px 7px;margin-top:1px}
+  .qtxt{flex:1;font-weight:600;line-height:1.45}
+  .badges{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+  .bdg{font-size:11px;padding:1px 7px;border-radius:9px;font-weight:600}
+  .bdg-de{background:#0e3c6e;color:#fff}
+  .bdg-warn{background:#fdf0e0;color:#8a4d00}
+  .ans{display:none;margin-top:8px;padding:9px 11px;background:#f6f9fc;border-radius:8px;font-size:14px;line-height:1.6;color:#31445a}
+  .card.open .ans{display:block}
+  .anshint{margin-top:6px;font-size:11.5px;color:#9aa8b8;text-align:center}
+  .card.open .anshint{display:none}
+  .marks{display:flex;gap:6px;margin-top:10px}
+  .mk{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:6px 0;font-size:13px;color:var(--sub);cursor:pointer;font-weight:600}
+  .mk.ok.on{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+  .mk.mid.on{background:var(--mid-bg);border-color:var(--mid);color:var(--mid)}
+  .mk.no.on{background:var(--no-bg);border-color:var(--no);color:var(--no)}
+  .empty{text-align:center;color:var(--sub);padding:40px 0;font-size:14px}
+  .tip{font-size:12px;color:var(--sub);background:#fff;border-radius:10px;padding:8px 12px;margin-top:10px;line-height:1.6}
+  .resetrow{text-align:center;margin-top:16px}
+  .resetrow button{border:1px solid var(--no);color:var(--no);background:#fff;border-radius:10px;padding:7px 16px;font-size:13px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>综合问答 · 中文全量清单</h1>
+    <p>2025 年 738 题版（720 题）· 点题目看答案 · 点按钮标记掌握程度</p>
+    <a class="backlink" href="index.html">← 返回备考站</a>
+  </header>
+
+  <div class="progress-card">
+    <div class="pbar"><i class="p-ok" id="pbOk"></i><i class="p-mid" id="pbMid"></i><i class="p-no" id="pbNo"></i></div>
+    <div class="pstats">
+      <span class="s-total" id="stTotal"></span>
+      <span class="s-ok" id="stOk"></span>
+      <span class="s-mid" id="stMid"></span>
+      <span class="s-no" id="stNo"></span>
+      <span class="s-none" id="stNone"></span>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="chips" id="statusChips">
+      <button class="chip on" data-st="all">全部</button>
+      <button class="chip" data-st="none">未标记</button>
+      <button class="chip" data-st="1">✅ 已背熟</button>
+      <button class="chip" data-st="2">🟡 模糊</button>
+      <button class="chip" data-st="3">❌ 完全不会</button>
+      <button class="chip" data-st="todo">🔥 未掌握</button>
+    </div>
+    <div class="chips" id="catChips"></div>
+    <div class="searchrow">
+      <input id="search" type="search" placeholder="🔍 搜索题目或答案关键词…">
+      <button class="hideok-btn" id="hideOk">隐藏已背熟</button>
+    </div>
+  </div>
+
+  <div id="list"></div>
+  <div class="tip">📌 标记保存在本机浏览器（localStorage），换浏览器/清缓存会丢失。时政 59 题为 2025 旧题，2026 考试勿用。<span id="okCountTip"></span></div>
+  <div class="resetrow"><button id="resetBtn">清空全部标记</button></div>
+</div>
+
+<script src="data-qa.js"></script>
+<script>
+(function(){
+  var KEY = 'qaMarksV1';
+  var marks = {};
+  try { marks = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) { marks = {}; }
+  var stFilter = 'all', catFilter = -1, query = '', hideOk = false;
+
+  var cats = QA.cats;
+  // 预计算每题状态缓存
+  function stOf(id){ return marks[id] || 0; }
+
+  var elStatusChips = document.getElementById('statusChips');
+  var elCatChips = document.getElementById('catChips');
+  var elList = document.getElementById('list');
+  var elSearch = document.getElementById('search');
+  var elHideOk = document.getElementById('hideOk');
+
+  // 分类 chips
+  var catHtml = '<button class="chip cat on" data-cat="-1">全部分类 <span class="n">' + QA.total + '</span></button>';
+  cats.forEach(function(c, i){
+    catHtml += '<button class="chip cat" data-cat="' + i + '">' + c.name + ' <span class="n">' + c.items.length + '</span></button>';
+  });
+  elCatChips.innerHTML = catHtml;
+
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // 渲染
+  function render(){
+    var html = '';
+    var shown = 0;
+    cats.forEach(function(c, ci){
+      if (catFilter >= 0 && ci !== catFilter) return;
+      var matched = [];
+      c.items.forEach(function(it){
+        if (!matchStatus(stOf(it.id))) return;
+        if (query && (it.q + ' ' + it.a).toLowerCase().indexOf(query) < 0) return;
+        matched.push(it);
+      });
+      if (!matched.length) return;
+      // 分类进度
+      var cOk=0,cMid=0,cNo=0;
+      c.items.forEach(function(it){ var s=stOf(it.id); if(s===1)cOk++; else if(s===2)cMid++; else if(s===3)cNo++; });
+      var marked = cOk+cMid+cNo;
+      html += '<div class="cathead'+(c.warn?' warn':'')+'"><span>'+esc(c.name)+(c.warn?' ⚠️旧题勿用':'')+'</span>'+
+        '<span class="cp">已标记 '+marked+'/'+c.items.length+'</span></div>';
+      matched.forEach(function(it){
+        var s = stOf(it.id);
+        var cls = s===1?'ok':(s===2?'mid':(s===3?'no':''));
+        html += '<div class="card '+cls+'" data-id="'+it.id+'">'+
+          '<div class="qrow"><span class="qnum">'+it.num+'</span><div class="qtxt">'+esc(it.q)+
+          (it.de?'<div class="badges"><span class="bdg bdg-de">🇩🇪 P1 有德语音频</span></div>':'')+
+          '</div></div>'+
+          '<div class="ans">'+esc(it.a)+'</div><div class="anshint">👇 点击看答案</div>'+
+          '<div class="marks">'+
+            '<button class="mk ok'+(s===1?' on':'')+'" data-s="1">✅ 背熟</button>'+
+            '<button class="mk mid'+(s===2?' on':'')+'" data-s="2">🟡 模糊</button>'+
+            '<button class="mk no'+(s===3?' on':'')+'" data-s="3">❌ 不会</button>'+
+          '</div></div>';
+      });
+      shown += matched.length;
+    });
+    elList.innerHTML = html || '<div class="empty">没有符合条件的题目</div>';
+    document.getElementById('okCountTip').textContent = '已背熟 ' + countSt(1) + ' 题。';
+    updateStats();
+  }
+
+  function matchStatus(s){
+    if (stFilter === 'all') return true;
+    if (stFilter === 'none') return s === 0;
+    if (stFilter === 'todo') return s !== 1;
+    return s === parseInt(stFilter, 10);
+  }
+  function countSt(v){
+    var n = 0;
+    Object.keys(marks).forEach(function(k){ if (marks[k] === v) n++; });
+    return n;
+  }
+
+  function updateStats(){
+    var ok = countSt(1), mid = countSt(2), no = countSt(3);
+    var marked = ok + mid + no, total = QA.total;
+    var un = total - marked;
+    var pct = function(v){ return (v / total * 100).toFixed(2) + '%'; };
+    document.getElementById('pbOk').style.width = pct(ok);
+    document.getElementById('pbMid').style.width = pct(mid);
+    document.getElementById('pbNo').style.width = pct(no);
+    document.getElementById('stTotal').textContent = '共 ' + total + ' 题';
+    document.getElementById('stOk').textContent = '✅背熟 ' + ok;
+    document.getElementById('stMid').textContent = '🟡模糊 ' + mid;
+    document.getElementById('stNo').textContent = '❌不会 ' + no;
+    document.getElementById('stNone').textContent = '未标记 ' + un;
+  }
+
+  function save(){
+    localStorage.setItem(KEY, JSON.stringify(marks));
+  }
+
+  // 交互
+  elList.addEventListener('click', function(e){
+    var card = e.target.closest('.card');
+    if (!card) return;
+    var id = card.getAttribute('data-id');
+    // 状态按钮
+    var mk = e.target.closest('.mk');
+    if (mk) {
+      var s = parseInt(mk.getAttribute('data-s'), 10);
+      if (stOf(id) === s) { delete marks[id]; } else { marks[id] = s; }
+      save();
+      // 就地更新
+      var now = stOf(id);
+      card.classList.remove('ok','mid','no');
+      if (now===1) card.classList.add('ok'); else if (now===2) card.classList.add('mid'); else if (now===3) card.classList.add('no');
+      card.querySelectorAll('.mk').forEach(function(b){ b.classList.toggle('on', parseInt(b.getAttribute('data-s'),10)===now); });
+      updateStats();
+      // 若不再符合筛选条件则隐藏
+      if (!matchStatus(now) && !(stFilter==='todo' && now!==1)) {
+        card.style.display = 'none';
+      }
+      if (hideOk && now === 1) card.style.display = 'none';
+      return;
+    }
+    // 点题目看答案
+    if (e.target.closest('.qrow')) card.classList.toggle('open');
+  });
+
+  elStatusChips.addEventListener('click', function(e){
+    var c = e.target.closest('.chip'); if (!c) return;
+    elStatusChips.querySelectorAll('.chip').forEach(function(x){ x.classList.remove('on'); });
+    c.classList.add('on');
+    stFilter = c.getAttribute('data-st');
+    render();
+  });
+  elCatChips.addEventListener('click', function(e){
+    var c = e.target.closest('.chip'); if (!c) return;
+    elCatChips.querySelectorAll('.chip').forEach(function(x){ x.classList.remove('on'); });
+    c.classList.add('on');
+    catFilter = parseInt(c.getAttribute('data-cat'), 10);
+    render();
+  });
+  var searchTimer = null;
+  elSearch.addEventListener('input', function(){
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function(){
+      query = elSearch.value.trim().toLowerCase();
+      render();
+    }, 250);
+  });
+  elHideOk.addEventListener('click', function(){
+    hideOk = !hideOk;
+    elHideOk.classList.toggle('on', hideOk);
+    render();
+  });
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    if (!confirm('确定清空全部标记？此操作不可恢复。')) return;
+    marks = {}; save(); render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
