@@ -387,14 +387,26 @@
 
   /* ---------- 景点讲解 ---------- */
   var curSpot = -1, spotMode = 'learn', spIdx = -1, spPlaying = false, spTimer = null;
+  var spotVer = (function () { try { return localStorage.getItem('spotVer') === 'old' ? 'old' : 'new'; } catch (e) { return 'new'; } })();
+  function spotsData() { return (spotVer === 'old' && window.SPOTS_OLD) ? window.SPOTS_OLD : (window.SPOTS || []); }
   function renderSpots() {
-    var h = '<div class="card"><h2>选择景点 <span class="sub">（考试从这 6 个中随机抽 1 个）</span></h2><div class="spot-grid" id="sgrid">';
-    (window.SPOTS || []).forEach(function (s, i) {
+    var h = '<div class="card"><h2>选择景点 <span class="sub">（考试从这 6 个中随机抽 1 个）</span></h2>';
+    h += '<div class="row"><span class="chip' + (spotVer === 'new' ? ' on' : '') + '" data-v="new">新版·题签对照</span>';
+    h += '<span class="chip' + (spotVer === 'old' ? ' on' : '') + '" data-v="old">旧版·已背熟</span></div>';
+    h += '<div class="spot-grid" id="sgrid">';
+    spotsData().forEach(function (s, i) {
       var done = prog.spots[i] ? '<em>✓ 已练</em>' : '';
       h += '<div class="s' + (curSpot === i ? ' on' : '') + '" data-i="' + i + '"><b>' + s.zh + '</b><i>' + s.de + '</i>' + done + '</div>';
     });
     h += '</div></div><div id="spotDetail"></div>';
     $('v-spots').innerHTML = h;
+    Array.prototype.forEach.call($('v-spots').querySelectorAll('[data-v]'), function (el) {
+      el.onclick = function () {
+        spotVer = el.dataset.v;
+        try { localStorage.setItem('spotVer', spotVer); } catch (e) {}
+        curSpot = -1; stopAudio(); renderSpots();
+      };
+    });
     Array.prototype.forEach.call($('sgrid').children, function (el) {
       el.onclick = function () { curSpot = +el.dataset.i; stopAudio(); renderSpots(); renderSpotDetail(); };
     });
@@ -405,7 +417,7 @@
     var box = $('spotDetail');
     if (!box) return;
     if (curSpot < 0) { box.innerHTML = ''; return; }
-    var s = window.SPOTS[curSpot];
+    var s = spotsData()[curSpot];
     var h = '';
 
     h += '<div class="card"><h2>' + s.zh + ' <span class="sub">' + s.de + '</span></h2>';
@@ -487,7 +499,7 @@
     function spPlay(i) {
       spIdx = i; spPlaying = true; mark(i);
       stopAudio();
-      playUrl(AUDIO_BASE + 'audio/spots/' + curSpot + '/' + i + '.mp3', sents[i], 0.9);
+      playUrl(AUDIO_BASE + (spotVer === 'old' ? 'audio/spots-old/' : 'audio/spots/') + curSpot + '/' + i + '.mp3', sents[i], 0.9);
       audio.onended = function () {
         if (!spPlaying) return;
         var sh = $('sShadow') && $('sShadow').checked;
